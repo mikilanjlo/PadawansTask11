@@ -7,6 +7,8 @@ namespace PadawansTask11.Tests
     {
         [TestCase(new[] { 0.0001, 1.0002, -0.0003, 1, 0.0003, 1, -0.0003 }, 0.001, ExpectedResult = 3)]
         [TestCase(new[] { 1.0001, 1.0002, -3.0003, 1, 0.0003, 8.9, -0.0003, 0.901 }, 0.001, ExpectedResult = null)]
+        [TestCase(new[] { double.MaxValue, 1.0d, double.MaxValue }, 0.001, ExpectedResult = 1)]
+        [TestCase(new[] { double.MaxValue, 1.0d, double.MinValue }, 0.001, ExpectedResult = null)]
         public int? FindIndexTests(double[] array, double accuracy)
             => ArrayExtensions.FindIndex(array, accuracy);
     }

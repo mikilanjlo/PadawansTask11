@@ -10,29 +10,84 @@ namespace PadawansTask11
                 throw new ArgumentNullException();
             if (array.Length < 2)
                 throw new ArgumentException();
-            double sumAllElements = 0;
-            foreach (double number in array)
+            if (accuracy <= 0 || accuracy >= 1)
+                throw new ArgumentOutOfRangeException();
+            //if (IsBigNumbers(array))
+                return FindIndexWithBigNumber(array,accuracy);
+            //double sumAllElements = 0;
+            //foreach (double number in array)
+            //    try
+            //    {
+            //        sumAllElements =checked(sumAllElements + number);
+            //    }
+            //    catch(OverflowException ex)
+            //    {
+            //        throw new OverflowException();
+            //    }
+            //double sumLeftElements = array[0];
+            //int ind = -2;
+            //for (int i = 1; i < array.Length - 2; i++) {
+            //    if (Math.Abs(sumLeftElements - (sumAllElements - sumLeftElements - array[i])) < accuracy)
+            //    {
+            //        ind = i;
+            //        break;
+            //    }
+            //    sumLeftElements += array[i];
+            //}
+            //if (ind == -2)
+            //    return null;
+            //return ind;
+        }
+
+        private static bool IsBigNumbers(double[] array)
+        {
+            bool result = false;
+            foreach(double number in array)
+            {
+                if (number == double.MaxValue)
+                    result = true;
+                if (number == double.MinValue)
+                    result = true;
+            }
+            return result;
+        }
+
+        private static int? FindIndexWithBigNumber(double[] array, double accuracy)
+        {
+            double[,] prefixSum = new double[array.Length, 2];
+            double[,] sufixSum = new double[array.Length, 2];
+            for (int i = 0; i < array.Length; i++)
+                prefixSum[i, 1] = 0;
+            prefixSum[0,0] = array[0];
+            for (int i = 1; i < array.Length; i++)
                 try
                 {
-                    sumAllElements =checked(sumAllElements + number);
+                    prefixSum[i, 0] =checked( prefixSum[i - 1, 0] + array[i]);
                 }
-                catch(OverflowException ex)
+                catch (OverflowException ex)
                 {
-                    throw new OverflowException();
+                    double big = prefixSum[i - 1, 0] > array[i] ? prefixSum[i - 1, 0] : array[i];
+                    double min = prefixSum[i - 1, 0] <= array[i] ? prefixSum[i - 1, 0] : array[i];
+                    prefixSum[i, 1] += big > 0 ? 1 : -1;
+                    prefixSum[i, 0] = min;
                 }
-            double sumLeftElements = array[0];
-            int ind = -2;
-            for (int i = 1; i < array.Length - 2; i++) {
-                if (Math.Abs(sumLeftElements - (sumAllElements - sumLeftElements - array[i])) < accuracy)
+            sufixSum[array.Length - 1, 0] = array[array.Length - 1];
+            for (int i = array.Length - 2; i >= 0; i--)
+                try
                 {
-                    ind = i;
-                    break;
+                    sufixSum[i, 0] = checked(sufixSum[i + 1, 0] + array[i]);
                 }
-                sumLeftElements += array[i];
-            }
-            if (ind == -2)
-                return null;
-            return ind;
+                catch (OverflowException ex)
+                {
+                    double big = sufixSum[i + 1, 0] > array[i] ? sufixSum[i + 1, 0] : array[i];
+                    double min = sufixSum[i + 1, 0] <= array[i] ? sufixSum[i + 1, 0] : array[i];
+                    sufixSum[i, 1] += big > 0 ? 1 : -1;
+                    sufixSum[i, 0] = min;
+                }
+            for (int i = 1; i < array.Length; i++)
+                if (prefixSum[i, 0] == sufixSum[i, 0] && prefixSum[i, 1] == sufixSum[i, 1])
+                    return i;
+            return null;
         }
     }
 }
