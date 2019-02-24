@@ -6,12 +6,13 @@ namespace PadawansTask11
     {
         public static int? FindIndex(double[] array, double accuracy)
         {
+            if (accuracy <= 0 || accuracy >= 1)
+                throw new ArgumentOutOfRangeException();
             if (array == null)
                 throw new ArgumentNullException();
             if (array.Length < 2)
                 throw new ArgumentException();
-            if (accuracy <= 0 || accuracy >= 1)
-                throw new ArgumentOutOfRangeException();
+            
             //if (IsBigNumbers(array))
                 return FindIndexWithBigNumber(array,accuracy);
             //double sumAllElements = 0;
@@ -69,7 +70,7 @@ namespace PadawansTask11
                     double big = prefixSum[i - 1, 0] > array[i] ? prefixSum[i - 1, 0] : array[i];
                     double min = prefixSum[i - 1, 0] <= array[i] ? prefixSum[i - 1, 0] : array[i];
                     prefixSum[i, 1] += big > 0 ? 1 : -1;
-                    prefixSum[i, 0] = min;
+                    prefixSum[i, 0] = big - (big > 0 ? double.MaxValue : double.MinValue) + min;
                 }
             sufixSum[array.Length - 1, 0] = array[array.Length - 1];
             for (int i = array.Length - 2; i >= 0; i--)
@@ -82,10 +83,10 @@ namespace PadawansTask11
                     double big = sufixSum[i + 1, 0] > array[i] ? sufixSum[i + 1, 0] : array[i];
                     double min = sufixSum[i + 1, 0] <= array[i] ? sufixSum[i + 1, 0] : array[i];
                     sufixSum[i, 1] += big > 0 ? 1 : -1;
-                    sufixSum[i, 0] = min;
+                    sufixSum[i, 0] = big - (big > 0 ? double.MaxValue : double.MinValue) + min;
                 }
             for (int i = 1; i < array.Length; i++)
-                if (prefixSum[i, 0] == sufixSum[i, 0] && prefixSum[i, 1] == sufixSum[i, 1])
+                if (Math.Abs(prefixSum[i, 0] - sufixSum[i, 0]) <= accuracy && prefixSum[i, 1] == sufixSum[i, 1])
                     return i;
             return null;
         }
